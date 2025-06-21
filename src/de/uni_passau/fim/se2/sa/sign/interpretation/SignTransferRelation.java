@@ -22,15 +22,15 @@ public class SignTransferRelation implements TransferRelation {
 
     // we will handle negation here
     switch (pValue) {
+      case BOTTOM: return SignValue.BOTTOM;
       case PLUS: return SignValue.MINUS;
       case MINUS: return SignValue.PLUS;
       case ZERO: return SignValue.ZERO;
       case PLUS_MINUS: return SignValue.PLUS_MINUS;
       case ZERO_PLUS: return SignValue.ZERO_MINUS;
       case ZERO_MINUS: return SignValue.ZERO_PLUS;
-      case BOTTOM: return SignValue.BOTTOM;
-      default: return pValue;
-
+      case UNINITIALIZED_VALUE: return SignValue.UNINITIALIZED_VALUE;
+      default: return SignValue.TOP;
     }
   }
 
@@ -55,7 +55,6 @@ public class SignTransferRelation implements TransferRelation {
   }
 
   public SignValue evaluateADD(final SignValue pLHS, final SignValue pRHS) {
-      if (pLHS == SignValue.BOTTOM || pRHS == SignValue.BOTTOM) return SignValue.BOTTOM;
       if(pLHS == SignValue.TOP || pRHS == SignValue.TOP)  return SignValue.TOP;
       if(pLHS == SignValue.ZERO) return pRHS;
       if(pRHS == SignValue.ZERO) return pLHS;
@@ -65,6 +64,8 @@ public class SignTransferRelation implements TransferRelation {
       if (pLHS == SignValue.ZERO_PLUS && pRHS == SignValue.ZERO_PLUS) return SignValue.ZERO_PLUS;
       if (pLHS == SignValue.PLUS && pRHS == SignValue.ZERO_PLUS) return SignValue.PLUS;
       if (pLHS == SignValue.MINUS && pRHS == SignValue.ZERO_MINUS) return SignValue.MINUS;
+      if (pLHS == SignValue.UNINITIALIZED_VALUE || pRHS == SignValue.UNINITIALIZED_VALUE) return SignValue.TOP;
+      if (pLHS == SignValue.BOTTOM || pRHS == SignValue.BOTTOM) return SignValue.BOTTOM;
     return SignValue.TOP;
   }
   public SignValue evaluateSUB (final SignValue pLHS, final SignValue pRHS) {
