@@ -77,8 +77,8 @@ public class SignTransferRelation implements TransferRelation {
 
   public SignValue evaluateMUL (final SignValue pLHS, final SignValue pRHS) {
     if (pLHS == SignValue.BOTTOM || pRHS == SignValue.BOTTOM) return SignValue.BOTTOM;
-    if (pLHS == SignValue.TOP || pRHS == SignValue.TOP) return SignValue.TOP;
     if (pLHS == SignValue.ZERO || pRHS == SignValue.ZERO) return SignValue.ZERO;
+    if (pLHS == SignValue.TOP || pRHS == SignValue.TOP) return SignValue.TOP;
 
     if (pLHS == SignValue.PLUS && pRHS == SignValue.PLUS) return SignValue.PLUS;
     if (pLHS == SignValue.MINUS && pRHS == SignValue.MINUS) return SignValue.PLUS;
