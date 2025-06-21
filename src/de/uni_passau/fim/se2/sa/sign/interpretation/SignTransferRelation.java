@@ -76,28 +76,38 @@ public class SignTransferRelation implements TransferRelation {
   }
 
   public SignValue evaluateMUL (final SignValue pLHS, final SignValue pRHS) {
+    if (pLHS == SignValue.BOTTOM || pRHS == SignValue.BOTTOM) return SignValue.BOTTOM;
     if (pLHS == SignValue.TOP || pRHS == SignValue.TOP) return SignValue.TOP;
-
     if (pLHS == SignValue.ZERO || pRHS == SignValue.ZERO) return SignValue.ZERO;
 
     if (pLHS == SignValue.PLUS && pRHS == SignValue.PLUS) return SignValue.PLUS;
     if (pLHS == SignValue.MINUS && pRHS == SignValue.MINUS) return SignValue.PLUS;
-    if (pLHS == SignValue.PLUS && pRHS == SignValue.MINUS) return SignValue.MINUS;
-    if (pLHS == SignValue.MINUS && pRHS == SignValue.PLUS) return SignValue.MINUS;
+    if ((pLHS == SignValue.PLUS && pRHS == SignValue.MINUS) ||
+            (pLHS == SignValue.MINUS && pRHS == SignValue.PLUS)) return SignValue.MINUS;
 
     if ((pLHS == SignValue.PLUS && pRHS == SignValue.PLUS_MINUS) ||
-            (pRHS == SignValue.PLUS && pLHS == SignValue.PLUS_MINUS))
-      return SignValue.PLUS_MINUS;
+            (pRHS == SignValue.PLUS && pLHS == SignValue.PLUS_MINUS)) return SignValue.PLUS_MINUS;
 
     if ((pLHS == SignValue.MINUS && pRHS == SignValue.PLUS_MINUS) ||
-            (pRHS == SignValue.MINUS && pLHS == SignValue.PLUS_MINUS))
-      return SignValue.PLUS_MINUS;
+            (pRHS == SignValue.MINUS && pLHS == SignValue.PLUS_MINUS)) return SignValue.PLUS_MINUS;
+
+    if ((pLHS == SignValue.PLUS_MINUS && pRHS == SignValue.PLUS_MINUS)) return SignValue.PLUS_MINUS;
 
     if ((pLHS == SignValue.ZERO_PLUS && pRHS == SignValue.ZERO_PLUS) ||
-            (pLHS == SignValue.ZERO_MINUS && pRHS == SignValue.ZERO_MINUS))
-      return SignValue.ZERO_PLUS;
+            (pLHS == SignValue.ZERO_MINUS && pRHS == SignValue.ZERO_MINUS)) return SignValue.ZERO_PLUS;
 
-    if (pLHS == SignValue.BOTTOM || pRHS == SignValue.BOTTOM) return SignValue.BOTTOM;
+    if ((pLHS == SignValue.ZERO_PLUS && pRHS == SignValue.ZERO_MINUS) ||
+            (pLHS == SignValue.ZERO_MINUS && pRHS == SignValue.ZERO_PLUS)) return SignValue.ZERO_MINUS;
+
+    if ((pLHS == SignValue.ZERO_PLUS && (pRHS == SignValue.PLUS || pRHS == SignValue.MINUS || pRHS == SignValue.PLUS_MINUS)) ||
+            (pRHS == SignValue.ZERO_PLUS && (pLHS == SignValue.PLUS || pLHS == SignValue.MINUS || pLHS == SignValue.PLUS_MINUS))) {
+      return SignValue.ZERO_PLUS;
+    }
+
+    if ((pLHS == SignValue.ZERO_MINUS && (pRHS == SignValue.PLUS || pRHS == SignValue.MINUS || pRHS == SignValue.PLUS_MINUS)) ||
+            (pRHS == SignValue.ZERO_MINUS && (pLHS == SignValue.PLUS || pLHS == SignValue.MINUS || pLHS == SignValue.PLUS_MINUS))) {
+      return SignValue.ZERO_MINUS;
+    }
 
     return SignValue.TOP;
 
