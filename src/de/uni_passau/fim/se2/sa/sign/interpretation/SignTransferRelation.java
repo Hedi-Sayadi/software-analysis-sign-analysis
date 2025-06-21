@@ -91,7 +91,7 @@ public class SignTransferRelation implements TransferRelation {
     if ((pLHS == SignValue.MINUS && pRHS == SignValue.PLUS_MINUS) ||
             (pRHS == SignValue.MINUS && pLHS == SignValue.PLUS_MINUS)) return SignValue.PLUS_MINUS;
 
-    if ((pLHS == SignValue.PLUS_MINUS && pRHS == SignValue.PLUS_MINUS)) return SignValue.PLUS_MINUS;
+    if ((pLHS == SignValue.PLUS_MINUS && pRHS == SignValue.PLUS_MINUS)) return SignValue.PLUS;
 
     if ((pLHS == SignValue.ZERO_PLUS && pRHS == SignValue.ZERO_PLUS) ||
             (pLHS == SignValue.ZERO_MINUS && pRHS == SignValue.ZERO_MINUS)) return SignValue.ZERO_PLUS;
@@ -107,6 +107,11 @@ public class SignTransferRelation implements TransferRelation {
     if ((pLHS == SignValue.ZERO_MINUS && (pRHS == SignValue.PLUS || pRHS == SignValue.MINUS || pRHS == SignValue.PLUS_MINUS)) ||
             (pRHS == SignValue.ZERO_MINUS && (pLHS == SignValue.PLUS || pLHS == SignValue.MINUS || pLHS == SignValue.PLUS_MINUS))) {
       return SignValue.ZERO_MINUS;
+    }
+
+    if ((pLHS == SignValue.PLUS_MINUS && (pRHS == SignValue.ZERO_PLUS || pRHS == SignValue.ZERO_MINUS)) ||
+            (pRHS == SignValue.PLUS_MINUS && (pLHS == SignValue.ZERO_PLUS || pLHS == SignValue.ZERO_MINUS))) {
+      return SignValue.ZERO_PLUS;
     }
 
     return SignValue.TOP;
