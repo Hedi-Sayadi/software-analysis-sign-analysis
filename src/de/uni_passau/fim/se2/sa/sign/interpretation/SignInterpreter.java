@@ -6,6 +6,7 @@ import java.util.Map;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.Interpreter;
@@ -40,38 +41,64 @@ public class SignInterpreter extends Interpreter<SignValue> implements Opcodes {
   /** {@inheritDoc} */
   @Override
   public SignValue newValue(final Type pType) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    if (pType == null) return null;
+    if (pType.getSort() == Type.INT) {
+      return SignValue.UNINITIALIZED_VALUE;
+    }
+    return null; // we are noot interested in non integer values
   }
 
   /** {@inheritDoc} */
   @Override
   public SignValue newOperation(final AbstractInsnNode pInstruction) throws AnalyzerException {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    switch (pInstruction.getOpcode()) {
+
+      case ICONST_M1: return SignValue.MINUS;
+      case ICONST_0: return SignValue.ZERO;
+      case ICONST_1: return SignValue.PLUS;
+      case ICONST_2: return SignValue.PLUS;
+      case ICONST_3: return SignValue.PLUS;
+      case ICONST_4: return SignValue.PLUS;
+      case ICONST_5: return SignValue.PLUS;
+      // help of llm
+      case BIPUSH:
+      case SIPUSH:
+        SignTransferRelation signTransferRelation = new SignTransferRelation();
+        IntInsnNode intInsnNode = (IntInsnNode) pInstruction;
+        return signTransferRelation.evaluate(intInsnNode.operand);
+    }
+    return  SignValue.UNINITIALIZED_VALUE;
   }
 
   /** {@inheritDoc} */
   @Override
   public SignValue copyOperation(final AbstractInsnNode pInstruction, final SignValue pValue) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    return pValue;
   }
 
   /** {@inheritDoc} */
   @Override
   public SignValue unaryOperation(final AbstractInsnNode pInstruction, final SignValue pValue)
       throws AnalyzerException {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    SignTransferRelation signTransferRelation = new SignTransferRelation();
+    if (pInstruction.getOpcode() == INEG) {
+        return signTransferRelation.evaluate(TransferRelation.Operation.NEG,pValue);
+    }
+    return pValue;
   }
 
   /** {@inheritDoc} */
   @Override
   public SignValue binaryOperation(
       final AbstractInsnNode pInstruction, final SignValue pValue1, final SignValue pValue2) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    SignTransferRelation signTransferRelation = new SignTransferRelation();
+    switch (pInstruction.getOpcode()) {
+      case IADD: return signTransferRelation.evaluateADD(pValue1, pValue2);
+      case ISUB: return signTransferRelation.evaluateSUB(pValue1, pValue2);
+      case IMUL: return signTransferRelation.evaluateMUL(pValue1, pValue2);
+      case IDIV: return signTransferRelation.evaluateDIV(pValue1, pValue2);
+      default: return SignValue.TOP;
+    }
   }
 
   /** {@inheritDoc} */
@@ -88,8 +115,7 @@ public class SignInterpreter extends Interpreter<SignValue> implements Opcodes {
   @Override
   public SignValue naryOperation(
       final AbstractInsnNode pInstruction, final List<? extends SignValue> pValues) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+        return SignValue.TOP;
   }
 
   /** {@inheritDoc} */
@@ -102,7 +128,6 @@ public class SignInterpreter extends Interpreter<SignValue> implements Opcodes {
   /** {@inheritDoc} */
   @Override
   public SignValue merge(final SignValue pValue1, final SignValue pValue2) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+      return pValue1.join(pValue2);
   }
 }
