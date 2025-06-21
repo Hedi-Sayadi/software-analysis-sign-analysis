@@ -20,8 +20,6 @@ public class SignTransferRelation implements TransferRelation {
     Preconditions.checkState(pOperation == Operation.NEG);
     Preconditions.checkNotNull(pValue);
 
-    if (pValue == SignValue.BOTTOM) return SignValue.BOTTOM;
-
     // we will handle negation here
     switch (pValue) {
       case PLUS: return SignValue.MINUS;
@@ -30,7 +28,8 @@ public class SignTransferRelation implements TransferRelation {
       case PLUS_MINUS: return SignValue.PLUS_MINUS;
       case ZERO_PLUS: return SignValue.ZERO_MINUS;
       case ZERO_MINUS: return SignValue.ZERO_PLUS;
-      default: return SignValue.TOP;
+      case BOTTOM: return SignValue.BOTTOM;
+      default: return pValue;
 
     }
   }
