@@ -2,13 +2,18 @@ package de.uni_passau.fim.se2.sa.sign;
 
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
+import de.uni_passau.fim.se2.sa.sign.interpretation.SignInterpreter;
 import de.uni_passau.fim.se2.sa.sign.interpretation.SignValue;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.Frame;
 
@@ -17,9 +22,48 @@ public class SignAnalysisImpl implements SignAnalysis {
   @Override
   public SortedSetMultimap<Integer, AnalysisResult> analyse(
       final String pClassName, final String pMethodName) throws AnalyzerException, IOException {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+      // help of llm
+    ClassReader classReader = new ClassReader(pClassName);
+    ClassNode classNode = new ClassNode();
+    classReader.accept(classNode, 0);
+
+    int colonIndex = pMethodName.indexOf(':');
+    String methodName = pMethodName.substring(0, colonIndex);
+    String methodDesc = pMethodName.substring(colonIndex + 1);
+
+    MethodNode methodToAnalyze = null;
+    for (MethodNode m : classNode.methods) {
+      if (m.name.equals(methodName) && m.desc.equals(methodDesc)) {
+        methodToAnalyze = m;
+        break;
+      }
+    }
+
+    Map<String, MethodNode> methodMap = new HashMap<>();
+    for (MethodNode m : classNode.methods) {
+      methodMap.put(m.name + m.desc, m);
+    }
+
+    SignInterpreter interpreter = new SignInterpreter(pClassName, methodMap);
+
+    Analyzer<SignValue> analyzer = new Analyzer<>(interpreter);
+    Frame<SignValue>[] frames = analyzer.analyze(pClassName, methodToAnalyze);
+
+    List<Pair<AbstractInsnNode, Frame<SignValue>>> instructionPairs = new ArrayList<>();
+    for (int i = 0; i < methodToAnalyze.instructions.size(); i++) {
+      AbstractInsnNode insn = methodToAnalyze.instructions.get(i);
+      Frame<SignValue> frame = frames[i];
+
+      if (frame != null) {
+        instructionPairs.add(new Pair<>(insn, frame));
+      }
+    }
+
+    return extractAnalysisResults(instructionPairs);
   }
+
+
+
 
   /**
    * Extracts the analysis results from the given pairs of instructions and frames.
