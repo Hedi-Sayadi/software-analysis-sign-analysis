@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SignValueTest {
 
     @Test
-    void testJoin() {
+    void testJoinSimpleCases() {
         assertEquals(SignValue.MINUS, SignValue.MINUS.join(SignValue.BOTTOM));
         assertEquals(SignValue.ZERO_MINUS, SignValue.ZERO.join(SignValue.MINUS));
         assertEquals(SignValue.TOP, SignValue.PLUS.join(SignValue.ZERO_MINUS));
@@ -65,5 +65,17 @@ class SignValueTest {
         assertThrows(IllegalStateException.class, () ->
                 SignValue.UNINITIALIZED_VALUE.isLessOrEqual(SignValue.UNINITIALIZED_VALUE));
     }
+
+    @Test
+    void testJoin() {
+        for (SignValue a : SignValue.values()) {
+            for (SignValue b : SignValue.values()) {
+                if (a != SignValue.UNINITIALIZED_VALUE && b != SignValue.UNINITIALIZED_VALUE) {
+                    assertEquals(a.join(b), b.join(a));
+                }
+            }
+        }
+    }
+
 
 }
