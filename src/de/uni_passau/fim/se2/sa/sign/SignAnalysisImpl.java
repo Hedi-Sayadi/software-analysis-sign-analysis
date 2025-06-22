@@ -5,6 +5,8 @@ import com.google.common.collect.TreeMultimap;
 import de.uni_passau.fim.se2.sa.sign.interpretation.SignValue;
 import java.io.IOException;
 import java.util.List;
+
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
@@ -61,26 +63,38 @@ public class SignAnalysisImpl implements SignAnalysis {
   }
 
   private boolean isDivByZero(final AbstractInsnNode pInstruction, final Frame<SignValue> pFrame) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    if (pInstruction.getOpcode() == Opcodes.IDIV) {
+      SignValue divisor = pFrame.getStack(pFrame.getStackSize() - 1);
+      return SignValue.isZero(divisor);
+    }
+    return false;
   }
 
   private boolean isMaybeDivByZero(
       final AbstractInsnNode pInstruction, final Frame<SignValue> pFrame) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    if (pInstruction.getOpcode() == Opcodes.IDIV) {
+      SignValue divisor = pFrame.getStack(pFrame.getStackSize() - 1);
+      return SignValue.isMaybeZero(divisor);
+    }
+    return false;
   }
 
   private boolean isNegativeArrayIndex(
       final AbstractInsnNode pInstruction, final Frame<SignValue> pFrame) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    if (pInstruction.getOpcode() == Opcodes.IALOAD || pInstruction.getOpcode() == Opcodes.IASTORE) {
+      SignValue index = pFrame.getStack(pFrame.getStackSize() - 1);
+      return SignValue.isNegative(index);
+    }
+    return false;
   }
 
   private boolean isMaybeNegativeArrayIndex(
       final AbstractInsnNode pInstruction, final Frame<SignValue> pFrame) {
-    // TODO Implement me
-    throw new UnsupportedOperationException("Implement me");
+    if (pInstruction.getOpcode() == Opcodes.IALOAD || pInstruction.getOpcode() == Opcodes.IASTORE) {
+      SignValue index = pFrame.getStack(pFrame.getStackSize() - 1);
+      return SignValue.isMaybeNegative(index);
+    }
+    return false;
   }
 
   private record Pair<K, V>(K key, V value) {
