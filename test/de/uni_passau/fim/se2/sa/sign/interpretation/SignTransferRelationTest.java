@@ -68,9 +68,6 @@ class SignTransferRelationTest {
         assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateADD(SignValue.ZERO_PLUS, SignValue.ZERO));
         assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateADD(SignValue.ZERO_MINUS, SignValue.ZERO));
         assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateADD(SignValue.PLUS_MINUS, SignValue.ZERO));
-
-
-
     }
 
     @Test
@@ -101,6 +98,14 @@ class SignTransferRelationTest {
         assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateMUL(SignValue.PLUS_MINUS, SignValue.PLUS));
         assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateMUL(SignValue.MINUS, SignValue.PLUS_MINUS));
         assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateMUL(SignValue.PLUS_MINUS, SignValue.MINUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateADD(SignValue.ZERO_PLUS, SignValue.ZERO_PLUS));
+        assertEquals(SignValue.PLUS, transferRelation.evaluateADD(SignValue.ZERO_PLUS, SignValue.PLUS));
+        assertEquals(SignValue.MINUS, transferRelation.evaluateADD(SignValue.MINUS, SignValue.ZERO_MINUS));
+        assertEquals(SignValue.MINUS, transferRelation.evaluateADD(SignValue.ZERO_MINUS, SignValue.MINUS));
+        assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateMUL(SignValue.MINUS, SignValue.PLUS_MINUS));
+        assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateMUL(SignValue.PLUS_MINUS, SignValue.MINUS));
+        assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateMUL(SignValue.PLUS_MINUS, SignValue.PLUS_MINUS));
+        assertEquals(SignValue.TOP, transferRelation.evaluateMUL(SignValue.ZERO_MINUS, SignValue.PLUS_MINUS));
     }
 
     @Test
