@@ -1,0 +1,84 @@
+package de.uni_passau.fim.se2.sa.sign.interpretation;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class SignTransferRelationTest {
+    private SignTransferRelation transferRelation;
+
+    @BeforeEach
+    public void setUp() {
+        transferRelation = new SignTransferRelation();
+    }
+
+    @Test
+    public void testEvaluateInt() {
+        assertEquals(SignValue.MINUS, transferRelation.evaluate(-5));
+        assertEquals(SignValue.ZERO, transferRelation.evaluate(0));
+        assertEquals(SignValue.PLUS, transferRelation.evaluate(7));
+    }
+
+    @Test
+    public void testEvaluateNegOperation() {
+        for (SignValue val : SignValue.values()) {
+            if (val == SignValue.BOTTOM) {
+                assertEquals(SignValue.BOTTOM, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else if (val == SignValue.PLUS) {
+                assertEquals(SignValue.MINUS, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else if (val == SignValue.MINUS) {
+                assertEquals(SignValue.PLUS, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else if (val == SignValue.ZERO) {
+                assertEquals(SignValue.ZERO, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else if (val == SignValue.PLUS_MINUS) {
+                assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else if (val == SignValue.ZERO_PLUS) {
+                assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else if (val == SignValue.ZERO_MINUS) {
+                assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else if (val == SignValue.UNINITIALIZED_VALUE) {
+                assertEquals(SignValue.UNINITIALIZED_VALUE, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            } else {
+                assertEquals(SignValue.TOP, transferRelation.evaluate(TransferRelation.Operation.NEG, val));
+            }
+        }
+    }
+
+    @Test
+    public void testEvaluateAdd() {
+        assertEquals(SignValue.PLUS, transferRelation.evaluateADD(SignValue.PLUS, SignValue.PLUS));
+        assertEquals(SignValue.MINUS, transferRelation.evaluateADD(SignValue.MINUS, SignValue.MINUS));
+        assertEquals(SignValue.TOP, transferRelation.evaluateADD(SignValue.PLUS, SignValue.MINUS));
+        assertEquals(SignValue.BOTTOM, transferRelation.evaluateADD(SignValue.BOTTOM, SignValue.PLUS));
+        assertEquals(SignValue.TOP, transferRelation.evaluateADD(SignValue.UNINITIALIZED_VALUE, SignValue.ZERO));
+        assertEquals(SignValue.PLUS, transferRelation.evaluateADD(SignValue.PLUS, SignValue.ZERO_PLUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateADD(SignValue.ZERO_MINUS, SignValue.ZERO_MINUS));
+    }
+
+    @Test
+    public void testEvaluateSub() {
+        assertEquals(transferRelation.evaluateADD(SignValue.PLUS, transferRelation.evaluate(TransferRelation.Operation.NEG, SignValue.PLUS)),
+                transferRelation.evaluateSUB(SignValue.PLUS, SignValue.PLUS));
+    }
+
+    @Test
+    public void testEvaluateMul() {
+        assertEquals(SignValue.PLUS, transferRelation.evaluateMUL(SignValue.PLUS, SignValue.PLUS));
+        assertEquals(SignValue.MINUS, transferRelation.evaluateMUL(SignValue.PLUS, SignValue.MINUS));
+        assertEquals(SignValue.ZERO, transferRelation.evaluateMUL(SignValue.ZERO, SignValue.PLUS));
+        assertEquals(SignValue.BOTTOM, transferRelation.evaluateMUL(SignValue.BOTTOM, SignValue.PLUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateMUL(SignValue.PLUS, SignValue.ZERO_PLUS));
+        assertEquals(SignValue.TOP, transferRelation.evaluateMUL(SignValue.PLUS_MINUS, SignValue.ZERO_PLUS));
+    }
+
+    @Test
+    public void testEvaluateDiv() {
+        assertEquals(SignValue.BOTTOM, transferRelation.evaluateDIV(SignValue.PLUS, SignValue.ZERO));
+        assertEquals(SignValue.ZERO, transferRelation.evaluateDIV(SignValue.ZERO, SignValue.PLUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.PLUS, SignValue.PLUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.MINUS, SignValue.PLUS));
+        assertEquals(SignValue.TOP, transferRelation.evaluateDIV(SignValue.PLUS_MINUS, SignValue.ZERO_PLUS));
+    }
+
+}
