@@ -81,4 +81,38 @@ class SignTransferRelationTest {
         assertEquals(SignValue.TOP, transferRelation.evaluateDIV(SignValue.PLUS_MINUS, SignValue.ZERO_PLUS));
     }
 
+    //I added this to enhance branch coverage :
+    @Test
+    public void testEvaluateBinaryOperations() {
+        assertEquals(
+                transferRelation.evaluateADD(SignValue.PLUS, SignValue.MINUS),
+                transferRelation.evaluate(TransferRelation.Operation.ADD, SignValue.PLUS, SignValue.MINUS));
+        assertEquals(
+                transferRelation.evaluateSUB(SignValue.PLUS, SignValue.MINUS),
+                transferRelation.evaluate(TransferRelation.Operation.SUB, SignValue.PLUS, SignValue.MINUS));
+        assertEquals(
+                transferRelation.evaluateMUL(SignValue.PLUS, SignValue.MINUS),
+                transferRelation.evaluate(TransferRelation.Operation.MUL, SignValue.PLUS, SignValue.MINUS));
+        assertEquals(
+                transferRelation.evaluateDIV(SignValue.PLUS, SignValue.MINUS),
+                transferRelation.evaluate(TransferRelation.Operation.DIV, SignValue.PLUS, SignValue.MINUS));
+    }
+
+    @Test
+    public void testEvaluateBinaryNullOperands() {
+        assertThrows(NullPointerException.class, () -> {
+            transferRelation.evaluate(TransferRelation.Operation.ADD, null, SignValue.PLUS);
+        });
+
+        assertThrows(NullPointerException.class, () -> {
+            transferRelation.evaluate(TransferRelation.Operation.ADD, SignValue.PLUS, null);
+        });
+    }
+
+    @Test
+    public void testEvaluateBinaryInvalidOperation() {
+        assertThrows(IllegalStateException.class, () -> {
+            transferRelation.evaluate(null, SignValue.PLUS, SignValue.MINUS);
+        });
+}
 }
