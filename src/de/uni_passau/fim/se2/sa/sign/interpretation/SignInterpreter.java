@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.IntInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.tree.analysis.Interpreter;
 
 public class SignInterpreter extends Interpreter<SignValue> implements Opcodes {
@@ -84,6 +84,18 @@ public class SignInterpreter extends Interpreter<SignValue> implements Opcodes {
     if (pInstruction.getOpcode() == INEG) {
         return signTransferRelation.evaluate(TransferRelation.Operation.NEG,pValue);
     }
+    else if (pInstruction.getOpcode() == IINC) {
+      IincInsnNode iincNode = (IincInsnNode) pInstruction;
+      int increment = iincNode.incr;
+
+      if (increment > 0) {
+        return signTransferRelation.evaluateADD(pValue, SignValue.PLUS);
+      } else if (increment < 0) {
+        return signTransferRelation.evaluateADD(pValue, SignValue.MINUS);
+      } else {
+        return pValue;
+      }
+    }
     return pValue;
   }
 
@@ -115,7 +127,47 @@ public class SignInterpreter extends Interpreter<SignValue> implements Opcodes {
   @Override
   public SignValue naryOperation(
       final AbstractInsnNode pInstruction, final List<? extends SignValue> pValues) {
-        return SignValue.TOP;
+    // help of llm to know how to detect if a bytecode instruction is a method call
+    if (pInstruction.getOpcode() == INVOKEVIRTUAL ||
+            pInstruction.getOpcode() == INVOKESPECIAL ||
+            pInstruction.getOpcode() == INVOKESTATIC) {
+
+      MethodInsnNode methodNode = (MethodInsnNode) pInstruction;
+
+      // I put this because without it, when debugging i notice that the condition methodNode.owner.equals(internalClassName) will be always null. //help of llm
+      String internalClassName = this.pClassName.replace('.', '/');
+
+      if (methodNode.owner.equals(internalClassName) &&
+              methodNode.desc.endsWith(")I")) {
+
+        String methodKey = methodNode.name + methodNode.desc;
+        MethodNode calledMethod = this.methods.get(methodKey);
+
+        if (calledMethod != null) {
+          try {
+            SignInterpreter interpreter = new SignInterpreter(this.pClassName, this.methods);
+            Analyzer<SignValue> analyzer = new Analyzer<>(interpreter);
+            Frame<SignValue>[] frames = analyzer.analyze(this.pClassName, calledMethod);
+
+            SignValue returnValue = SignValue.BOTTOM;
+
+            AbstractInsnNode[] instructions = calledMethod.instructions.toArray();
+            for (int i = 0; i < instructions.length; i++) {
+              AbstractInsnNode insn = instructions[i];
+              if (insn.getOpcode() == IRETURN && frames[i] != null && frames[i].getStackSize() > 0) {
+                SignValue currentReturn = frames[i].getStack(frames[i].getStackSize() - 1);
+                returnValue = returnValue.join(currentReturn);
+              }
+            }
+            return returnValue;
+
+          } catch (Exception e) {
+            return SignValue.TOP;
+          }
+        }
+      }
+    }
+    return SignValue.TOP;
   }
 
   /** {@inheritDoc} */

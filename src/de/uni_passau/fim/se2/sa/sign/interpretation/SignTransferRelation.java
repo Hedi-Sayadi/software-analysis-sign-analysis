@@ -20,7 +20,6 @@ public class SignTransferRelation implements TransferRelation {
     Preconditions.checkState(pOperation == Operation.NEG);
     Preconditions.checkNotNull(pValue);
 
-    // we will handle negation here
     switch (pValue) {
       case BOTTOM: return SignValue.BOTTOM;
       case PLUS: return SignValue.MINUS;
@@ -111,7 +110,7 @@ public class SignTransferRelation implements TransferRelation {
   public SignValue evaluateDIV (final SignValue pLHS, final SignValue pRHS) {
 
     if (pLHS == SignValue.BOTTOM || pRHS == SignValue.BOTTOM) return SignValue.BOTTOM;
-    if (pRHS == SignValue.ZERO) return SignValue.BOTTOM;
+    if (pRHS == SignValue.ZERO ) return SignValue.BOTTOM;
     if (pLHS == SignValue.TOP || pRHS == SignValue.TOP) return SignValue.TOP;
 
     if (pLHS == SignValue.ZERO) return SignValue.ZERO;
@@ -128,14 +127,10 @@ public class SignTransferRelation implements TransferRelation {
 
     if (pLHS == SignValue.ZERO_PLUS && pRHS == SignValue.ZERO_PLUS) return SignValue.ZERO_PLUS;
     if (pLHS == SignValue.ZERO_MINUS && pRHS == SignValue.ZERO_MINUS) return SignValue.ZERO_PLUS;
-    if( pLHS == SignValue.ZERO_MINUS && pRHS == SignValue.ZERO_PLUS ||  pLHS == SignValue.ZERO_PLUS && pRHS == SignValue.ZERO_MINUS) return SignValue.ZERO_MINUS; ;
+    if( pLHS == SignValue.ZERO_MINUS && pRHS == SignValue.ZERO_PLUS ||  pLHS == SignValue.ZERO_PLUS && pRHS == SignValue.ZERO_MINUS) return SignValue.ZERO_MINUS;
 
     return SignValue.TOP;
   }
-
-
-
-
 
 
 }
