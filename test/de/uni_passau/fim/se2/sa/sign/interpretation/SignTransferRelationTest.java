@@ -68,6 +68,9 @@ class SignTransferRelationTest {
         assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateADD(SignValue.ZERO_PLUS, SignValue.ZERO));
         assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateADD(SignValue.ZERO_MINUS, SignValue.ZERO));
         assertEquals(SignValue.PLUS_MINUS, transferRelation.evaluateADD(SignValue.PLUS_MINUS, SignValue.ZERO));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.ZERO_MINUS, SignValue.ZERO_MINUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.ZERO_MINUS, SignValue.ZERO_PLUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.ZERO_PLUS, SignValue.ZERO_MINUS));
     }
 
     @Test
@@ -115,6 +118,15 @@ class SignTransferRelationTest {
         assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.PLUS, SignValue.PLUS));
         assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.MINUS, SignValue.PLUS));
         assertEquals(SignValue.TOP, transferRelation.evaluateDIV(SignValue.PLUS_MINUS, SignValue.ZERO_PLUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.PLUS, SignValue.ZERO_MINUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.ZERO_MINUS, SignValue.PLUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.PLUS, SignValue.ZERO_PLUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.ZERO_PLUS, SignValue.PLUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.MINUS, SignValue.ZERO_MINUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.ZERO_MINUS, SignValue.MINUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.MINUS, SignValue.ZERO_PLUS));
+        assertEquals(SignValue.ZERO_MINUS, transferRelation.evaluateDIV(SignValue.ZERO_PLUS, SignValue.MINUS));
+        assertEquals(SignValue.ZERO_PLUS, transferRelation.evaluateDIV(SignValue.ZERO_PLUS, SignValue.ZERO_PLUS));
     }
 
     //I added this to enhance branch coverage :
